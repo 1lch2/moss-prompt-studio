@@ -39,6 +39,16 @@ npm run preview
 - 禁用、已满、损坏或不兼容的本地存储会显示明确错误，不会假装保存成功或偷偷换用其他端点密钥。
 - 预设包括 DeepSeek、OpenAI、通义千问、Moonshot/Kimi、智谱 GLM 和 SiliconFlow；模型列表不可用时可手填模型 ID。服务商需支持浏览器跨域调用；不提供代理或绕过方案。
 
+### 默认思考模式
+
+普通文本、模型生成 Layout JSON 和 Bbox 增强共用请求配置。已识别的服务商与支持思考的模型默认启用思考；始终思考的模型不发送其不支持的开关。不更换用户选定模型，不对不支持思考的模型或未知自定义端点盲目添加参数。
+
+- [DeepSeek](https://api-docs.deepseek.com/guides/thinking_mode/)、[Kimi 混合思考模型](https://platform.kimi.ai/docs/guide/use-thinking-models)、[GLM](https://docs.bigmodel.cn/cn/guide/start/concept-param)：`thinking.type = enabled`。
+- [OpenAI 推理模型](https://developers.openai.com/api/docs/guides/reasoning)：`reasoning_effort = medium`，不会发给 GPT-4o 等非推理模型或 chat-latest 变体。
+- [通义千问](https://www.alibabacloud.com/help/en/model-studio/deep-thinking)和 [SiliconFlow](https://docs.siliconflow.cn/docs/api/chat-completions-post)：`enable_thinking = true`；使用单独的 8192 token 思考预算，保留原有最终输出预算。千问思考请求使用 SSE 兼容仅支持流式的模型，但界面仍只呈现最终内容。
+
+共用思考/输出额度的模型预算提高到 32768 token（GLM-4.5V 为 16384）；思考请求超时为 5 分钟。思考会增加等待时间与 API 用量。只读取最终 `content`，不展示或把 `reasoning_content` 当成结果；JSON 截断与格式校验保持不变。自定义端点继续使用服务商自身默认行为。兼容规则依据 2026-10-28 官方文档；服务商新增模型需按其能力更新识别规则。
+
 ## 保留的功能
 
 - 普通提示词为第一项且默认打开；增强按钮旁切换普通文本 / 模型自行生成的 Layout JSON。
